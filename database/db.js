@@ -1,15 +1,16 @@
-const { Client } = require('pg');
 require('dotenv').config();
+const { Client } = require('pg');
 
 const client = new Client({
-  user: DB_USER,
-  host: DB_HOST,
-  database: DB_NAME,
-  password: DB_PASSWORD,
-  port: DB_PORT
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_NAME,
+  password: process.env.DB_PASSWORD,
+  port: process.env.DB_PORT
 });
 
-await client.connect();
+client.connect();
+
 /*
 table: gameplay
 columns: id and games
@@ -31,7 +32,7 @@ games:
 
 */
 
-function newGame(playerX, playerO, type, beginTimestamp, callback) {
+function newGame(player1, player2, type, callback) {
   //adds new row to gameplay table
   let gameState = {};
   if (type === 'tictactoe') {
@@ -48,9 +49,11 @@ function newGame(playerX, playerO, type, beginTimestamp, callback) {
     //etc for all game types
   }
 
+  let beginTimestamp = Date.now();
+
   let newGameObject = {
-    "playerX": playerX,
-    "playerO": playerO,
+    "player1": player1,
+    "player2": player2,
     "type": type, //type of game
     "winner": null, //should this be in the state or here?
     "begin": beginTimestamp,
@@ -63,8 +66,8 @@ function newGame(playerX, playerO, type, beginTimestamp, callback) {
 
 //--------------------------------------------------------------------------------
 //game functions for tictactoe
-function getGameState(beginTime, callback) {
-  let stateQuery = `SELECT games -> 'state' FROM gameplay WHERE games ->> begin = ${beginTime}`;
+function getGameState(gameId, callback) {
+  let stateQuery = `SELECT games -> 'state' FROM gameplay WHERE id = ${gameId}`;
   client.query(stateQuery, callback);
 }
 
