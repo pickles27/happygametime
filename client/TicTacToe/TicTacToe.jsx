@@ -1,18 +1,27 @@
 import React from 'react';
 import Board from './Board.jsx';
+import axios from 'axios';
 
 class TicTacToe extends React.Component {
 	constructor(props) {
 		super(props);
 
 		this.state = {
-			board: [null, null, null, null, null, null, null, null, null],
-			xTurn: true,
-			winner: null
+			// board: [null, null, null, null, null, null, null, null, null],
+			// xTurn: true,
+			// winner: null
+			currentGameTimestamp: null
 		}
 		this.handleTTTButtonClick = this.handleTTTButtonClick.bind(this);
 		this.checkForWin = this.checkForWin.bind(this);
 		this.restartGame = this.restartGame.bind(this);
+	}
+
+	startNewGame(e) {
+		e.preventDefault();
+		let beginTimestamp = Date.now();
+		//make request to server, invoke newGame function there
+		//need to set state with beginTimestamp
 	}
 
 	handleTTTButtonClick(e) {
@@ -40,17 +49,34 @@ class TicTacToe extends React.Component {
 	}
 
 	checkForWin(boardArray) {
-		if (boardArray[0] && boardArray[0] === boardArray[1] && boardArray[1] === boardArray[2] ||
-				boardArray[3] && boardArray[3] === boardArray[4] && boardArray[4] === boardArray[5] ||
-				boardArray[6] && boardArray[6] === boardArray[7] && boardArray[7] === boardArray[8] ||
-				boardArray[0] && boardArray[0] === boardArray[3] && boardArray[3] === boardArray[6] ||
-				boardArray[1] && boardArray[1] === boardArray[4] && boardArray[4] === boardArray[7] ||
-				boardArray[2] && boardArray[2] === boardArray[5] && boardArray[5] === boardArray[8] ||
-				boardArray[0] && boardArray[0] === boardArray[4] && boardArray[4] === boardArray[8] ||
-				boardArray[2] && boardArray[2] === boardArray[4] && boardArray[4] === boardArray[6]) {
-			return true;
-		}
-		return false;
+		// if (boardArray[0] && boardArray[0] === boardArray[1] && boardArray[1] === boardArray[2] ||
+		// 		boardArray[3] && boardArray[3] === boardArray[4] && boardArray[4] === boardArray[5] ||
+		// 		boardArray[6] && boardArray[6] === boardArray[7] && boardArray[7] === boardArray[8] ||
+		// 		boardArray[0] && boardArray[0] === boardArray[3] && boardArray[3] === boardArray[6] ||
+		// 		boardArray[1] && boardArray[1] === boardArray[4] && boardArray[4] === boardArray[7] ||
+		// 		boardArray[2] && boardArray[2] === boardArray[5] && boardArray[5] === boardArray[8] ||
+		// 		boardArray[0] && boardArray[0] === boardArray[4] && boardArray[4] === boardArray[8] ||
+		// 		boardArray[2] && boardArray[2] === boardArray[4] && boardArray[4] === boardArray[6]) {
+		// 	return true;
+		// }
+		// return false;
+
+		let gameWin; //boolean to say if game has winner
+
+		axios.get('/tttwin', {
+			params: {
+				time: this.state.currentGameTimestamp
+			}
+		})
+		.then(function (response) {
+			console.log('response from tttwin function request: ', response);
+			//maybe set gameWin variable equal to this response
+		})
+		.catch(function (error) {
+			console.log(error);
+		});
+
+		return gameWin;
 	}
 
 	restartGame() {

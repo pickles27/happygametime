@@ -11,14 +11,9 @@ class App extends React.Component {
 		super();
 		this.state = {
 			page: 'home',
-			// board: [null, null, null, null, null, null, null, null, null],
-			// xTurn: true,
-			// winner: null
 		}
 		this.handleNavButtonClick = this.handleNavButtonClick.bind(this);
 		this.returnHome = this.returnHome.bind(this);
-		// this.handleTTTButtonClick = this.handleTTTButtonClick.bind(this);
-		// this.checkForWin = this.checkForWin.bind(this);
 	}
 
 	/*
