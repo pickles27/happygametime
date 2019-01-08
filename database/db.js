@@ -32,15 +32,15 @@ games:
 */
 
 //game functions
-function newGame(playerX, playerO, type, beginTimestamp) {
-  //add new row to gameplay table, with new id and game
+function newGame(playerX, playerO, type, beginTimestamp, callback) {
+  //adds new row to gameplay table
   let newGameObject = {
     "playerX": playerX,
     "playerO": playerO,
-    "type": type,
+    "type": type, //type of game
     "winner": null, //should this be in the state or here?
     "begin": beginTimestamp,
-    "end": null,
+    "end": null, //when game ends, record this
     "state": {
       "board": [null, null, null, null, null, null, null, null, null],
       "xTurn": true,
@@ -48,6 +48,9 @@ function newGame(playerX, playerO, type, beginTimestamp) {
     }
   };
   let query = `INSERT INTO gameplay (games) VALUES ${newGameObject}`;
+  client.query(query, callback);
 }
 
-//module.exports
+module.exports = {
+  newGame
+};
