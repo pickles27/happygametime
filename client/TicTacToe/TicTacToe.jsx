@@ -7,9 +7,12 @@ class TicTacToe extends React.Component {
 		super(props);
 
 		this.state = {
+			player1: null,
+			player2: null,
 			board: [null, null, null, null, null, null, null, null, null],
 			xTurn: true,
-			gameId: null
+			gameId: null,
+			winner: null
 		}
 		this.handleTTTButtonClick = this.handleTTTButtonClick.bind(this);
 		this.startNewGame = this.startNewGame.bind(this);
@@ -24,65 +27,39 @@ class TicTacToe extends React.Component {
 		})
 		.then((response) => {
 			this.setState({
+				player1: response.data.game.player1,
+				player2: response.data.game.player2,
 				gameId: response.data.id,
 				board: [null, null, null, null, null, null, null, null, null],
 				xTurn: true,
+				winner: null
 			});
 		})
 		.catch((error) => {
-			console.log(error);
+			console.log('error from startNewGame axios request on client side: ', error);
 		});
 	}
 
 	handleTTTButtonClick(e) {
 		e.preventDefault();
 		var index = parseInt(e.target.name);
-		axios.post(`/games/${this.state.gameId}/moves`, {
+		axios.post(`/game/${this.state.gameId}/moves`, {
 			location: index
 		})
 		.then((response) => {
 			//after sending index to server,
-			console.log(response.data);
+			console.log('response.data: ', response.data);
+			this.setState({
+				board: response.data.game.state.board,
+				xTurn: response.data.game.state.xTurn,
+				winner: response.data.game.winner
+			});
 			//check if response says 'winner' is true
 			//if so, deal with game win (already done in render)
-
-			//want for response:
-			//winner (null, player1 or player2)
-			//xTurn (true or false) toggles on back end with end turn, server needs to be source of truth so do this there
-			//new game board from server
-
-			//set state so that state is current
-			//don't need to make sure spot is empty because i will do this on the back end
-			//need to switch turns on back end and update board on back end
-		
-			// this.setState({
-			// 	//board: newBoard (from response)
-			// 	//winner: null, player 1 or player 2 (from response)
-			// 	//xTurn: true or false (from response)
-			// });
 		})
 		.catch((error) => {
-			console.log('error from tttbuttonclick axios call: ', error.response);
+			console.log('error from tttbuttonclick axios call on client side: ', error);
 		});
-		// var newBoard = this.state.board.slice();
-		// if (newBoard[index] === null) {
-		// 	newBoard[index] = this.state.xTurn ? 'X' : 'O';
-		
-		// 	this.setState({
-		// 		board: newBoard
-		// 	}, () => {
-		// 		if (this.checkForWin(this.state.board)) {
-		// 			var victor = this.state.xTurn ? 'X' : '0';
-		// 			this.setState({
-		// 				winner: victor
-		// 			});
-		// 		} else {
-		// 			this.setState({
-		// 				xTurn: !this.state.xTurn
-		// 			});
-		// 		}
-		// 	});
-		// }
 	}
 
 	render(props) {

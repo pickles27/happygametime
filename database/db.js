@@ -86,12 +86,9 @@ function checkForWin(boardArray) {
 }
 
 function move(gameId, gameInfo, index, callback) {
-  var moveQuery;
-  var values;
   var newBoard = gameInfo.state.board.slice();
   var xTurn = gameInfo.state.xTurn;
   newBoard[index] = xTurn ? 'X' : 'O';
-  console.log('newBoard after move: ', newBoard);
   var updatedGame = {
     "player1": gameInfo.player1,
     "player2": gameInfo.player2,
@@ -105,17 +102,16 @@ function move(gameId, gameInfo, index, callback) {
     }
   };
   var winDetected = checkForWin(newBoard);
-  console.log('updatedgame: ', updatedGame);
   if (winDetected) {
     updatedGame.end = Date.now();
     updatedGame.winner = xTurn ? gameInfo.player1 : gameInfo.player2;
   } else {
     updatedGame.state.xTurn = !gameInfo.state.xTurn;
   }
-    moveQuery = `UPDATE gameplay SET game = $1
-                                 WHERE id = $2
-                                 RETURNING game`;
-    values = [JSON.stringify(updatedGame), gameId];
+  var moveQuery = `UPDATE gameplay SET game = $1
+                   WHERE id = $2
+                   RETURNING game`;
+  var values = [JSON.stringify(updatedGame), gameId];
   client.query(moveQuery, values, callback);
 }
 
