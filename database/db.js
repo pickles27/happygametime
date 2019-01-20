@@ -13,20 +13,20 @@ client.connect();
 
 /*
 table: gameplay
-columns: id and games
+columns: id and game
 
-games: 
+game: 
 {
-  "playerX": *player x id number*, NOT NULL
-  "playerO": *player o id number*, NOT NULL
+  "player1": *player x id number*, NOT NULL
+  "player2": *player o id number*, NOT NULL
   "type": "tictactoe", (or "chess", "checkers", etc) NOT NULL
   "winner": *winning player ID*,
   "begin": *timestamp for begin of game*, NOT NULL
   "end": *timestamp for end of game*,
   "state": {
+    STATE IS UNIQUE FOR EACH TYPE OF GAME, THE REST IS NOT
     "board": [null, null, null, null, null, null, null, null, null],
     "xTurn": true,
-    "winner": null
   }
 }
 
@@ -38,8 +38,7 @@ function newGame(player1, player2, type, callback) {
   if (type === 'tictactoe') {
     gameState = {
       "board": [null, null, null, null, null, null, null, null, null],
-      "xTurn": true,
-      "winner": null
+      "xTurn": true
     };
   } else if (type === 'checkers') {
     gameState = {
@@ -55,23 +54,73 @@ function newGame(player1, player2, type, callback) {
     "player1": player1,
     "player2": player2,
     "type": type, //type of game
-    "winner": null, //should this be in the state or here?
+    "winner": null, //player id of winner
     "begin": beginTimestamp,
     "end": null, //when game ends, record this
     "state": gameState
   };
-  let query = `INSERT INTO gameplay (games) VALUES ${JSON.stringify(newGameObject)}`;
-  client.query(query, callback);
+  let query = 'INSERT INTO gameplay (game) VALUES ($1) RETURNING id, game';
+  let values = [JSON.stringify(newGameObject)];
+  client.query(query, values, callback);
 }
 
 //--------------------------------------------------------------------------------
 //game functions for tictactoe
-function getGameState(gameId, callback) {
-  let stateQuery = `SELECT games -> 'state' FROM gameplay WHERE id = ${gameId}`;
+function getGameInfo(gameId, callback) {
+  let stateQuery = `SELECT game FROM gameplay WHERE id = ${gameId}`;
   client.query(stateQuery, callback);
+}
+
+function checkForWin(boardArray) {
+  if (boardArray[0] && boardArray[0] === boardArray[1] && boardArray[1] === boardArray[2] ||
+      boardArray[3] && boardArray[3] === boardArray[4] && boardArray[4] === boardArray[5] ||
+      boardArray[6] && boardArray[6] === boardArray[7] && boardArray[7] === boardArray[8] ||
+      boardArray[0] && boardArray[0] === boardArray[3] && boardArray[3] === boardArray[6] ||
+      boardArray[1] && boardArray[1] === boardArray[4] && boardArray[4] === boardArray[7] ||
+      boardArray[2] && boardArray[2] === boardArray[5] && boardArray[5] === boardArray[8] ||
+      boardArray[0] && boardArray[0] === boardArray[4] && boardArray[4] === boardArray[8] ||
+      boardArray[2] && boardArray[2] === boardArray[4] && boardArray[4] === boardArray[6]) {
+    return true;
+  }
+  return false;
+}
+
+function move(gameId, gameInfo, index, callback) {
+  var moveQuery;
+  var values;
+  var newBoard = gameInfo.state.board.slice();
+  var xTurn = gameInfo.state.xTurn;
+  newBoard[index] = xTurn ? 'X' : 'O';
+  console.log('newBoard after move: ', newBoard);
+  var updatedGame = {
+    "player1": gameInfo.player1,
+    "player2": gameInfo.player2,
+    "type": 'tictactoe',
+    "winner": null,
+    "begin": gameInfo.begin,
+    "end": null,
+    "state": {
+      "board": newBoard,
+      "xTurn": xTurn,
+    }
+  };
+  var winDetected = checkForWin(newBoard);
+  console.log('updatedgame: ', updatedGame);
+  if (winDetected) {
+    updatedGame.end = Date.now();
+    updatedGame.winner = xTurn ? gameInfo.player1 : gameInfo.player2;
+  } else {
+    updatedGame.state.xTurn = !gameInfo.state.xTurn;
+  }
+    moveQuery = `UPDATE gameplay SET game = $1
+                                 WHERE id = $2
+                                 RETURNING game`;
+    values = [JSON.stringify(updatedGame), gameId];
+  client.query(moveQuery, values, callback);
 }
 
 module.exports = {
   newGame,
-  getGameState
+  getGameInfo,
+  move
 };
