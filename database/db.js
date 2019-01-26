@@ -30,6 +30,11 @@ game:
   }
 }
 
+happygametime=# CREATE TABLE users (
+ID serial NOT NULL PRIMARY KEY,
+username VARCHAR(100) NOT NULL,
+password VARCHAR(60),email VARCHAR(100));
+
 */
 
 function newGame(player1, player2, type, callback) {

@@ -57,6 +57,12 @@ app.post('/game/:gameId/moves', (req, res) => {
 
 });
 
+//--------------- auth ------------------------------------------------------------------
+
+app.post('/createaccount', (req, res) => {
+  //input validation
+})
+
 const PORT = 1337;
 app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}........o.o`);
