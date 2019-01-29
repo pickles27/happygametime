@@ -58,15 +58,13 @@ app.post('/game/:gameId/moves', (req, res) => {
 //--------------- auth ------------------------------------------------------------------
 
 app.post('/createaccount', (req, res) => {
-  db.createUserAccount(req.body.email, req.body.username, req.body.password, req.body.password2, (err, userInfo) => {
-    if (err) {
-      console.log('error from createUserAccount in server: ', err);
-      res.status(500).send(err);
-    } else {
-      res.status(200).send(userInfo.rows[0]);
-    }
-  })
-})
+  db.createUserAccount(req.body.email, req.body.username, req.body.password, req.body.password2).then(userInfo => {
+    res.status(200).send(userInfo.rows[0]);
+  }).catch(err => {
+    console.log('err in create account app.post: ', err);
+    res.status(500).send(err);
+  });
+});
 
 const PORT = 1337;
 app.listen(PORT, () => {
