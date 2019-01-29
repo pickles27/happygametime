@@ -12,6 +12,11 @@
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Styles For Login ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
+.userInfoBox {
+	display: inline-block;
+	float: right;
+}
+
 .login {
 	display: inline-block;
 	float: right;

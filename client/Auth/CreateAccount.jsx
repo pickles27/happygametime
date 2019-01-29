@@ -30,16 +30,23 @@ class CreateAccount extends React.Component {
   		password: this.state.password,
   		password2: this.state.password2
   	})
-  	.then(() => {
-  		//return user id and set state with it
-  		console.log('createaccount axios success!');
-  		this.setState({
-  			username: null,
-  			email: null,
-  			password: null,
-  			password2: null
-  		});
-  	})
+  	.then((userInfo) => {
+  		console.log(userInfo); //userInfo.data gives object with username, id, email and created (time)
+      //log in user automatically
+      this.props.loginNewAccount(userInfo.data);
+    })
+    .then(() => {
+      //clear state of sensitive password information
+      this.setState({
+        username: null,
+        email: null,
+        password: null,
+        password2: null
+      });
+    })
+    .then(() => {
+      this.props.returnHome();
+    })
   	.catch((error) => {
   		console.log('createaccount axios error: ', error);
   	});
@@ -54,9 +61,9 @@ class CreateAccount extends React.Component {
       	<h5>Username: </h5>
       	<input type="text" onChange={this.onChange} name="username" />
       	<h5>Password (at least 6 characters): </h5>
-      	<input type="text" onChange={this.onChange} name="password" />
+      	<input type="password" onChange={this.onChange} name="password" />
       	<h5>Confirm Password: </h5>
-      	<input type="text" onChange={this.onChange} name="password2" />
+      	<input type="password" onChange={this.onChange} name="password2" />
       	<button onClick={this.onSubmit}>Create Account</button>
       </div>
     );

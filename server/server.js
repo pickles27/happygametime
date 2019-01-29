@@ -40,13 +40,11 @@ app.post('/game/:gameId/moves', (req, res) => {
         };
         res.status(200).send(responseForInvalidMove);
       } else {
-        //invoke move function
         db.move(req.params.gameId, gameInfo, req.body.location, (err, moveResults) => {
           if (err) {
             console.log('getting error in db.move invocation', err);
             res.status(500).send(err);
           } else {
-            //need to check for win
             console.log('move results: ', moveResults.rows[0].game.state);
             res.status(200).send(moveResults.rows[0]);
           }
@@ -60,7 +58,14 @@ app.post('/game/:gameId/moves', (req, res) => {
 //--------------- auth ------------------------------------------------------------------
 
 app.post('/createaccount', (req, res) => {
-  //input validation
+  db.createUserAccount(req.body.email, req.body.username, req.body.password, req.body.password2, (err, userInfo) => {
+    if (err) {
+      console.log('error from createUserAccount in server: ', err);
+      res.status(500).send(err);
+    } else {
+      res.status(200).send(userInfo.rows[0]);
+    }
+  })
 })
 
 const PORT = 1337;

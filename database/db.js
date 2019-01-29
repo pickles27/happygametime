@@ -1,5 +1,6 @@
 require('dotenv').config();
 const { Client } = require('pg');
+const bcrypt = require('bcrypt');
 
 const client = new Client({
   user: process.env.DB_USER,
@@ -120,8 +121,38 @@ function move(gameId, gameInfo, index, callback) {
   client.query(moveQuery, values, callback);
 }
 
+function userInfoIsValid(email, username, password, password2) {
+  let validEmail = email.trim() !== '' ? true : false;
+  let validUsername = username.trim() !== '' ? true : false;
+  let validPassword = (password.length > 5 && password.length < 73 && password === password2) ? true : false;
+  return validEmail && validUsername && validPassword;
+}
+
+function createUserAccount(email, username, password, password2, callback) {
+  //verify username, email and password
+  if (userInfoIsValid(email, username, password, password2)) {
+    //use bcrypt to hash password
+    bcrypt.hash(password, 10, function(err, hash) {
+      if (err) {
+        console.log(err);
+      } else {
+        let query = 'INSERT INTO users (username, password, email, created) VALUES ($1, $2, $3, CURRENT_DATE) RETURNING id, username, email, created';
+        let values = [username, hash, email];
+        client.query(query, values, callback);
+      }
+    });
+  } else {
+    //return error for invalid email, username or password
+    console.log('Invalid email, username or password.');
+    //let errorMessage = 'Please make sure your password is between 6 and 72 characters, and that you have entered your email and username!';
+  }
+
+
+}
+
 module.exports = {
   newGame,
   getGameInfo,
-  move
+  move,
+  createUserAccount
 };
