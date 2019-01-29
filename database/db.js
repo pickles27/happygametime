@@ -123,20 +123,7 @@ function move(gameId, gameInfo, index, callback) {
 
 //================================= AUTH FUNCTIONS ==============================================
 
-// function getUserByEmail(email, callback) {
-//   let query = 'SELECT id FROM users WHERE email = $1';
-//   let values = [email];
-//   client.query(query, values, callback);
-// }
-
-// function getUserByUsername(username, callback) {
-//   let query = 'SELECT id FROM users WHERE username = $1';
-//   let values = [username];
-//   client.query(query, values, callback);
-// }
-//ADD IN UNIQUE CONSTRAINT TO DB
-
-function userInfoIsValid(email, username, password, password2) {
+function validateUserInfo(email, username, password, password2) {
   if (email.trim() === "") {
     return Promise.reject(new Error("Invalid email."));
   }
@@ -152,26 +139,14 @@ function userInfoIsValid(email, username, password, password2) {
   return Promise.resolve();
 }
 
-function createUserAccount(email, username, password, password2, callback) {
-  //verify username, email and password
-  //check if email is in use
-  //check if username is in use
-  if (userInfoIsValid(email, username, password, password2)) {
-    //use bcrypt to hash password
-    return bcrypt.hash(password, 10).then(function(hash) {
+function createUserAccount(email, username, password, password2) {
+  return validateUserInfo(email, username, password, password2).then(() => {
+    return bcrypt.hash(password, 10);
+  }).then((hash) => {
       let query = 'INSERT INTO users (username, password, email, created) VALUES ($1, $2, $3, CURRENT_DATE) RETURNING id, username, email, created';
       let values = [username, hash, email];
-      client.query(query, values);
-    });
-  } else {
-    //return error for invalid email, username or password
-    console.log();
-    return Promise.reject(new Error('Invalid email, username or password.'))
-    //return failed promise
-    //let errorMessage = 'Please make sure your password is between 6 and 72 characters, and that you have entered your email and username!';
-  }
-
-
+      return client.query(query, values);
+  });
 }
 
 module.exports = {
