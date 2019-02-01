@@ -22,7 +22,7 @@ class TicTacToe extends React.Component {
 		e.preventDefault();
 		axios.post('/game', {
 			"type": "tictactoe",
-			"player1": "hardcodeplayer1",
+			"player1": this.props.appState.activeUserId,
 			"player2": "hardcodeplayer2"
 		})
 		.then((response) => {

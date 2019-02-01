@@ -10,7 +10,8 @@ class CreateAccount extends React.Component {
       username: null,
       email: null,
       password: null,
-      password2: null
+      password2: null,
+      errorMessage: null
 		}
 		this.onChange = this.onChange.bind(this);
 		this.onSubmit = this.onSubmit.bind(this);
@@ -36,7 +37,7 @@ class CreateAccount extends React.Component {
       this.props.loginNewAccount(userInfo.data);
     })
     .then(() => {
-      //clear state of sensitive password information
+      //clear state of password information
       this.setState({
         username: null,
         email: null,
@@ -48,11 +49,17 @@ class CreateAccount extends React.Component {
       this.props.returnHome();
     })
   	.catch((error) => {
-  		console.log('createaccount axios error: ', error);
+  		console.log('createaccount axios error: ', error.response.data.message);
+      this.setState({
+        errorMessage: error.response.data.message
+      });
   	});
   }
 
 	render() {
+    if (this.state.errorMessage) {
+      var errorMessage = <h5 className="errorMessage">{this.state.errorMessage}</h5>
+    }
     return (
       <div>
       	<h2>Create your account:</h2>
@@ -65,6 +72,7 @@ class CreateAccount extends React.Component {
       	<h5>Confirm Password: </h5>
       	<input type="password" onChange={this.onChange} name="password2" />
       	<button onClick={this.onSubmit}>Create Account</button>
+        {errorMessage}
       </div>
     );
 	}

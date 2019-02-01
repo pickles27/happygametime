@@ -1,0 +1,25 @@
+STUFF TO DO:
+
+[x] make logout button remove token too
+[ ] make tic tac toe game use userId to set game state and create new database game rows
+[ ] make game moves and creategame require token to validate id
+[ ] let user send in-game game invitations (make notifications page)
+[ ] let user send email invitation 
+			-express-mailer?
+[ ] let person accept game invitation through email, and keep that state while they create an account
+
+Chatbox/private messages stuff:
+[ ] people online bar on right side
+[ ] double click on person to send private message
+
+Notifications page:
+[ ] see invites from other players
+[ ] invite someone to play section
+		[ ] type of game
+		[ ] person to invite (email OR username) have separate functions for invite w email or invite w username
+			- if person isn't member, send email. 
+			-if person is member:
+				-if username is chosen, send notif that way (maybe have "send email too" button)
+				-send email if email is chosen and also send notif in app
+[ ] if user has a new notification, make notification button red. once user has opened notif page, remove red color
+

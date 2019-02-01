@@ -1,6 +1,9 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+require('dotenv').config();
 const db = require('../database/db.js');
 
 const app = express();
@@ -62,8 +65,59 @@ app.post('/createaccount', (req, res) => {
     res.status(200).send(userInfo.rows[0]);
   }).catch(err => {
     console.log('err in create account app.post: ', err);
-    res.status(500).send(err);
+    res.status(400).send(translateDbError(err));
   });
+});
+
+function translateDbError(dbError) {
+  if (dbError.constraint === 'username_unique') {
+    return { message: 'That username has already been taken.' };
+  }
+  if (dbError.constraint === 'email_unique') {
+    return { message: 'That email already has an account associated with it.' };
+  }
+  if (dbError instanceof Error) {
+    return { message: dbError.message };
+  }
+}
+
+app.post('/login', (req, res) => {
+  console.log('req.body: ', req.body);
+  db.getUserByUsername(req.body.username).then((userInDb) => {
+    console.log('userInDb: ', userInDb);
+    if (userInDb.rows.length === 0) {
+      throw new Error("That username does not exist!");
+    }
+    //make sure password matches using bcrypt
+    bcrypt.compare(req.body.password, userInDb.rows[0].password).then((isCorrectPassword) => {
+      //if true then log in, generate and send back token
+      if (isCorrectPassword) {
+        //send back token
+        var secretKey = Buffer.from(process.env.JWT_SECRET_KEY, "base64");
+        jwt.sign({ username: req.body.username, iat: Date.now() }, secretKey, (error, token) => {
+          if (error) {
+            res.status(500).send(error);
+          } else {
+            console.log('token created in jwt.sign: ', token);
+            res.status(200).send(
+              { token: token,
+                id: userInDb.rows[0].id,
+                username: userInDb.rows[0].username,
+                email: userInDb.rows[0].email,
+                created: userInDb.rows[0].created
+             });
+          }
+        });
+      } else {
+      //if false then return error
+        throw new Error("Incorrect password. Try again!");
+        //res.status(400).send({ message: 'Incorrect password. Try again!' });
+      }
+    })
+  }).catch(error => {
+    res.status(400).send({ message: error.message });
+  });
+
 });
 
 const PORT = 1337;

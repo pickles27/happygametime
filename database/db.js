@@ -149,9 +149,16 @@ function createUserAccount(email, username, password, password2) {
   });
 }
 
+function getUserByUsername(username) {
+  let query = 'SELECT id, username, password, email, created FROM users WHERE username = $1';
+  let values = [username];
+  return client.query(query, values);
+}
+
 module.exports = {
   newGame,
   getGameInfo,
   move,
-  createUserAccount
+  createUserAccount,
+  getUserByUsername
 };
