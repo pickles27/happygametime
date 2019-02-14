@@ -10,16 +10,140 @@ const app = express();
 
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname,'../public')));
+//--------------- auth ------------------------------------------------------------------
+
+app.post('/createaccount', (req, res) => {
+  db.createUserAccount(req.body.email, req.body.username, req.body.password, req.body.password2).then(userInfo => {
+    res.status(200).send(userInfo.rows[0]);
+  }).catch(err => {
+    res.status(400).send(translateDbError(err));
+  });
+});
+
+function translateDbError(dbError) {
+  if (dbError.constraint === 'username_unique') {
+    return { message: 'That username has already been taken.' };
+  }
+  if (dbError.constraint === 'email_unique') {
+    return { message: 'That email already has an account associated with it.' };
+  }
+  if (dbError instanceof Error) {
+    return { message: dbError.message };
+  }
+}
+
+app.post('/login', (req, res) => {
+  console.log('req.body: ', req.body);
+  db.getUserByUsername(req.body.username).then((userInDb) => {
+    console.log('userInDb: ', userInDb);
+    if (userInDb.rows.length === 0) {
+      throw new Error("That username does not exist.");
+    }
+    return bcrypt.compare(req.body.password, userInDb.rows[0].password).then((isCorrectPassword) => {
+      return Promise.resolve([userInDb, isCorrectPassword]);
+    });
+  }).then(([userInDb, isCorrectPassword]) => {
+    if (isCorrectPassword) {
+      var secretKey = Buffer.from(process.env.JWT_SECRET_KEY, "base64");
+      jwt.sign(
+        { 
+          username: userInDb.rows[0].username,
+          iat: Date.now() 
+        },
+        secretKey,
+        (error, token) => {
+          if (error) {
+            res.status(500).send(error);
+          } else {
+            console.log('token created in jwt.sign: ', token);
+            res.status(200).send({ 
+              token: token,
+              username: userInDb.rows[0].username,
+              id: userInDb.rows[0].id,
+              email: userInDb.rows[0].email,
+              created: userInDb.rows[0].created
+            }) ;
+          }
+        }
+      );
+    } else {
+      throw new Error("Incorrect password.");
+    }
+  }).catch(error => {
+    res.status(400).send({ message: error.message });
+  });
+});
+
+app.get('/opengames', (req, res) => {
+  db.getOpenGames().then(results => {
+    res.status(200).send(results.rows);
+  }).catch(error => {
+    console.log('error from getOpenGames: ', error);
+    res.status(400).send(error);
+  })
+})
+
+//========================= authentication middleware =================================================
+app.all('*', (req, res, next) => {
+  var secretKey = Buffer.from(process.env.JWT_SECRET_KEY, "base64");
+  var token = req.headers.authorization.split(' ')[1];
+  jwt.verify(token, secretKey, (error, decoded) => {
+    if (error) {
+      res.status(401).send(error);
+    } else {
+      next();
+    }
+  });
+});
+
+app.get('/userinfo', (req, res) => {
+  var userId = req.headers.userid;
+  db.getUserById(userId)
+  .then(results => {
+    var userInfo = results.rows[0];
+    res.status(200).send(userInfo);
+  })
+  .catch(error => {
+    res.status(500).send(error);
+  });
+});
+
+app.post('/newopengame', (req, res) => {
+  var gameInfo = req.body;
+  if (gameInfo.gameType !== 'tictactoe') {
+    res.status(400).send({ message: 'Unsupported game type.'});
+  }
+  db.createOpenGame(gameInfo.creatorId, gameInfo.creatorUsername, gameInfo.gameType).then(results => {
+    res.status(200).send(results.rows[0]);
+  }).catch(error => {
+    console.log('error from createopengame: ', error);
+    res.status(400).send(error);
+  });
+});
+
+app.post('/joingame', (req, res) => {
+  console.log('req.body in /joingame: ', req.body);
+  //call function which takes in the gameid and player2 names
+    //fetch opengameinfo using gameid
+    //use results of this to create new game and send back results from this function
+    db.startOpenGame(req.body.gameId, req.body.player2)
+    .then(results => {
+      //returning id, game
+      console.log('results.rows from startOpenGame in server.js: ', results.rows);
+      res.status(200).send(results.rows[0]);
+    })
+    .catch(error => {
+      res.status(400).send(error);
+    });
+});
 
 //new game
 app.post('/game', (req, res) => {
-  db.newGame(req.body.player1, req.body.player2, req.body.type, (error, results) => {
-    if (error) {
-      res.status(500).send(error);
-    } else {
+  db.newGame(req.body.player1, req.body.player2, req.body.type).then(results => {
       res.status(200).send(results.rows[0]);
-    }
-  });
+  }).catch(error => {
+      res.status(500).send(error);
+  }); 
 });
 
 //post move
@@ -58,66 +182,37 @@ app.post('/game/:gameId/moves', (req, res) => {
 
 });
 
-//--------------- auth ------------------------------------------------------------------
 
-app.post('/createaccount', (req, res) => {
-  db.createUserAccount(req.body.email, req.body.username, req.body.password, req.body.password2).then(userInfo => {
-    res.status(200).send(userInfo.rows[0]);
-  }).catch(err => {
-    console.log('err in create account app.post: ', err);
-    res.status(400).send(translateDbError(err));
-  });
+//======================== invitations ====================================================
+
+app.post('/invitations', (req, res) => {
+  res.send('hiiiii');
+  
+})
+
+app.post('/invitebyusername', (req, res) => {
+  //creatorId, recipientId, recipientEmail, gameType, customMessage
+  //if user entered username only but there is no user matching, return error asking for email and say they don't have account yet
+  //if user entered username and recipient does have an account, get their email and fill it in here
+  db.getUserByUsername(req.body.recipientUsername).then((userInfo) => {
+    db.sendInvitation(req.body.creatorId, userInfo.rows[0].id, userInfo.rows[0].email, req.body.gameType, req.body.customMessage).then((inviteId) => {
+      res.status(200).send(inviteId.rows[0]);
+    }).catch((error) => {
+      res.status(500).send('error in app.post for invitebyusername: ', error);
+    });
+  });  //CHECK SPACING ON THESE!!! SEEMS WEIRD
 });
 
-function translateDbError(dbError) {
-  if (dbError.constraint === 'username_unique') {
-    return { message: 'That username has already been taken.' };
-  }
-  if (dbError.constraint === 'email_unique') {
-    return { message: 'That email already has an account associated with it.' };
-  }
-  if (dbError instanceof Error) {
-    return { message: dbError.message };
-  }
-}
-
-app.post('/login', (req, res) => {
-  console.log('req.body: ', req.body);
-  db.getUserByUsername(req.body.username).then((userInDb) => {
-    console.log('userInDb: ', userInDb);
-    if (userInDb.rows.length === 0) {
-      throw new Error("That username does not exist!");
-    }
-    //make sure password matches using bcrypt
-    bcrypt.compare(req.body.password, userInDb.rows[0].password).then((isCorrectPassword) => {
-      //if true then log in, generate and send back token
-      if (isCorrectPassword) {
-        //send back token
-        var secretKey = Buffer.from(process.env.JWT_SECRET_KEY, "base64");
-        jwt.sign({ username: req.body.username, iat: Date.now() }, secretKey, (error, token) => {
-          if (error) {
-            res.status(500).send(error);
-          } else {
-            console.log('token created in jwt.sign: ', token);
-            res.status(200).send(
-              { token: token,
-                id: userInDb.rows[0].id,
-                username: userInDb.rows[0].username,
-                email: userInDb.rows[0].email,
-                created: userInDb.rows[0].created
-             });
-          }
-        });
-      } else {
-      //if false then return error
-        throw new Error("Incorrect password. Try again!");
-        //res.status(400).send({ message: 'Incorrect password. Try again!' });
-      }
-    })
-  }).catch(error => {
-    res.status(400).send({ message: error.message });
+app.post('/invitebyemail', (req, res) => {
+  //get recipient username, need to query database to see if they exist, and check for their id.
+  db.getUserByEmail(req.body.recipientEmail).then((userInfo) => {
+    db.sendInvitation(req.body.creatorId, userInfo.rows[0].id, userInfo.rows[0].email, req.body.gameType, req.body.customMessage).then((inviteId) => {
+      res.status(200).send(inviteId.rows[0]);
+    }).catch((error) => {
+      res.status(500).send('error in app.post for invitebyemail: ', error);
+    });
   });
-
+  //if user doesn't have an account yet, response with message: 'There isn't an account associated with this email yet. Send invitiation?
 });
 
 const PORT = 1337;

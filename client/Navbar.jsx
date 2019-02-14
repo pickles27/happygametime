@@ -4,12 +4,12 @@ var Navbar = (props) => {
 	//state: {page: either home, tictactoe, checkers, etc}
 	return (
 		<div className="navbar">
-			<input type="button" className="navbutton" name="home" value="Home" onClick={props.handleNavButtonClick}></input>
-			<input type="button" className="navbutton" name="invites" value="Invites" onClick={props.handleNavButtonClick}></input>
-			<input type="button" className="navbutton" name="tictactoe" value="Tic Tac Toe" onClick={props.handleNavButtonClick}></input>
-			<button className="navbutton" name="checkersButton">Checkers</button>
-			<button className="navbutton" name="chessButton">Chess</button>
-			<button className="navbutton" name="connectFourButton">Connect Four</button>
+			<button name="home" onClick={props.handleNavButtonClick}>home</button>
+			<button name="invites" onClick={props.handleNavButtonClick}>invites</button>
+			<button name="tictactoe" onClick={props.handleNavButtonClick}>tic tac toe</button>
+			<button name="checkersButton">checkers</button>
+			<button name="chessButton">chess</button>
+			<button name="connectFourButton">connect four</button>
 		</div>
 	);
 }

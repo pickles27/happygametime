@@ -1,29 +1,171 @@
+body {
+	background: url('https://s3.amazonaws.com/happygametimemedia/happygametimebackground.jpg');
+	background-size: cover;
+	background-attachment: fixed;
+	font-family: 'Play', sans-serif;
+	opacity: .8;
+}
+
+button {
+	font-family: 'Play', sans-serif;
+	padding: 4px 10px 4px 10px;
+	margin: 0px 6px 0px 6px;
+}
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Styles For Navbar ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 .navbar {
 	display: inline-block;
+	text-align: center;
+	width: 100%;
+
 	
 }
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Styles For Login ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
-.userInfoBox {
-	display: inline-block;
-	float: right;
+.loginAndHome {
+	display: block;
+	width: 100%;
+	position: absolute;
+}
+
+.loginArea {
+	display: flex;
+	flex-direction: column;
+	border: solid lightgrey 2px;
+	line-height: .3;
+	padding: 1% 2% 1% 2%;
+	width: 15%;
+	background: white;
+	position: fixed;
+	top: 6%;
+	right: 6%;
 }
 
 .login {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+}
+
+.loginButton {
+	margin-top: 10px;
+}
+
+.loginInput {
+	margin: 5px;
+}
+
+.page {
+	text-align: center;
 	display: inline-block;
-	float: right;
+	width: 100%;
+}
+
+.homeSection {
+	float: left;
+	width: 85%;
+	position: relative;
+}
+
+.homePage {
+	text-align: center;
+	display: inline-block;
+}
+
+.openGameInfo {
+	display: inline-block;
+	background: white;
+	border: solid lightgrey 2px;
+	width: 50%;
+	margin: 0 0 8px 8px;
+	line-height: .15;
+}
+
+.joinGameButton {
+	margin-bottom: 8px;
+}
+
+.newOpenGameDiv {
+	/*height:80%; width:100%;
+	overflow:hidden; overflow-y:scroll;*/
+}
+
+.happyGameTimeTitle {
+	display: inline-block;
+}
+
+.displayed {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 100%;
+}
+
+.chatbox {
+/*	display: block;
+*/	width: 100%;
+/*	bottom: 0;
+	position: absolute*/
+}
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Styles For Login ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+
+.invitesPage {
+	padding: 2%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	line-height: .3;
+}
+
+.inviteArea {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+}
+
+.tttInvitationDiv {
+	width: 100%;
+}
+
+.inviteInput {
+	margin: 2%;
+	line-height: 2.3;
+}
+
+.inputDividerText {
+
+}
+
+.inviteInviteAFriend {
+	line-height: .8;
 }
 
 .errorMessage {
 	color: red;
+}
+
+.gameInvitationComponent {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.sendInvitationButton {
+	width: 25%;
+}
+
+.customInviteMessageField {
+	width: 100%;
+}
+
+.newGameInvitationField {
+	width: 100%;
 }
 
 /*

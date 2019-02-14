@@ -38,7 +38,7 @@ password VARCHAR(60),email VARCHAR(100));
 
 */
 
-function newGame(player1, player2, type, callback) {
+function newGame(player1, player2, type) {
   //adds new row to gameplay table
   let gameState = {};
   if (type === 'tictactoe') {
@@ -54,7 +54,12 @@ function newGame(player1, player2, type, callback) {
     //etc for all game types
   }
 
-  let beginTimestamp = Date.now();
+  let beginTimestamp;
+  if (player2 !== null) {
+    beginTimestamp = Date.now();
+  } else {
+    beginTimestamp = null;
+  }
 
   let newGameObject = {
     "player1": player1,
@@ -67,7 +72,7 @@ function newGame(player1, player2, type, callback) {
   };
   let query = 'INSERT INTO gameplay (game) VALUES ($1) RETURNING id, game';
   let values = [JSON.stringify(newGameObject)];
-  client.query(query, values, callback);
+  return client.query(query, values);
 }
 
 //--------------------------------------------------------------------------------
@@ -143,7 +148,7 @@ function createUserAccount(email, username, password, password2) {
   return validateUserInfo(email, username, password, password2).then(() => {
     return bcrypt.hash(password, 10);
   }).then((hash) => {
-      let query = 'INSERT INTO users (username, password, email, created) VALUES ($1, $2, $3, CURRENT_DATE) RETURNING id, username, email, created';
+      let query = 'INSERT INTO users (username, password, email, created) VALUES ($1, $2, $3, CURRENT_TIMESTAMP) RETURNING id, username, email, created';
       let values = [username, hash, email];
       return client.query(query, values);
   });
@@ -155,10 +160,74 @@ function getUserByUsername(username) {
   return client.query(query, values);
 }
 
+function getUserByEmail(email) {
+  let query = 'SELECT id, username, password, email, created FROM users WHERE email = $1';
+  let values = [email];
+  return client.query(query, values);
+}
+
+function getUserById(id) {
+  let query = 'SELECT id, username, password, email, created FROM users WHERE id = $1';
+  let values = [id];
+  return client.query(query, values);
+}
+
+//=========================== invitations ==================================================
+/*
+CREATE TABLE invitations (inviteId SERIAL NOT NULL PRIMARY KEY, creatorId int, 
+recipientId int, recipientEmail varchar(100), gameType varchar(100), 
+customMessage varchar(200), timestampSent timestamp, timestampOpened timestamp, 
+resolved boolean, challengeAccepted boolean);
+*/
+
+function sendInvitation(creatorId, recipientId, recipientEmail, gameType, customMessage) {
+  let timestampSent = Date.now();
+  let resolved = false;
+  let query = 'INSERT INTO invitations (creatorId, recipientId, recipientEmail, gameType, customMessage, timestampSent, resolved) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING inviteId';
+  let values = [creatorId, recipientId, recipientEmail, gameType, customMessage, timestampSent, resolved];
+  return client.query(query, values);
+}
+
+function createOpenGame(creatorId, creatorUsername, gameType) {
+  let query = 'INSERT INTO opengames (creatorid, creatorusername, gametype, timestamp, accepted) VALUES ($1, $2, $3, CURRENT_TIMESTAMP, $4) RETURNING id, creatorid, creatorusername, gametype, timestamp';
+  let values = [creatorId, creatorUsername, gameType, false];
+  return client.query(query, values);
+}
+
+function getOpenGames() {
+  let query = 'SELECT id, creatorid, creatorusername, gametype, timestamp FROM opengames WHERE accepted = false';
+  return client.query(query);
+}
+
+function acceptOpenGame(openGameId, player2Id) {
+    let query = 'UPDATE opengames SET accepted = true WHERE id = $1 RETURNING creatorid, gametype';
+    let values = [openGameId];
+    return client.query(query, values);
+}
+
+function startOpenGame(openGameId, player2Id) {
+  return acceptOpenGame(openGameId, player2Id)
+  .then(gameInfo => {
+    var player1Id = gameInfo.rows[0].creatorid;
+    var gametype = gameInfo.rows[0].gametype;
+    return newGame(player1Id, player2Id, gametype);
+  })
+}
+
+
+//==========================================================================================
+
 module.exports = {
   newGame,
   getGameInfo,
   move,
   createUserAccount,
-  getUserByUsername
+  getUserById,
+  getUserByUsername,
+  getUserByEmail,
+  sendInvitation,
+  createOpenGame,
+  acceptOpenGame,
+  getOpenGames,
+  startOpenGame
 };

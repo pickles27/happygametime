@@ -3,8 +3,8 @@ import axios from 'axios';
 
   
 class CreateAccount extends React.Component {
-	constructor() {
-		super();
+	constructor(props) {
+		super(props);
 
 		this.state = {
       username: null,
@@ -34,15 +34,14 @@ class CreateAccount extends React.Component {
   	.then((userInfo) => {
   		console.log(userInfo); //userInfo.data gives object with username, id, email and created (time)
       //log in user automatically
-      this.props.loginNewAccount(userInfo.data);
+      this.props.loginNewAccount(this.state.username, this.state.password);
     })
     .then(() => {
-      //clear state of password information
       this.setState({
         username: null,
         email: null,
         password: null,
-        password2: null
+        password2: null,
       });
     })
     .then(() => {
@@ -64,7 +63,7 @@ class CreateAccount extends React.Component {
       <div>
       	<h2>Create your account:</h2>
       	<h5>Email: </h5>
-      	<input type="text" onChange={this.onChange} name="email" />
+      	<input type="email" onChange={this.onChange} name="email" />
       	<h5>Username: </h5>
       	<input type="text" onChange={this.onChange} name="username" />
       	<h5>Password (at least 6 characters): </h5>
