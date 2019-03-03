@@ -2,15 +2,16 @@ STUFF TO DO:
 
 [x] make logout button remove token too
 [x] make tic tac toe game use userId to set game state and create new database game rows
-[ ] make login peristant?? to refresh until logged out? or not until done editing game
+[x] make login peristant?? to refresh until logged out? or not until done editing game
 		- store token in local storage or cookie (browser side api, get token from server then store in LS then can assume logged in
 		if token is expired then must delete from local storage and make user login)
-[ ] make game moves and creategame require token to validate id
+[x] make game moves and creategame require token to validate id
   //need player id in json web token payload.
 [ ] let user send in-game game invitations (make notifications page)
 [ ] let user send email invitation 
 			-nodemailer
 [ ] let person accept game invitation through email, and keep that state while they create an account
+[x] let user join open games
 
 Chatbox/private messages stuff:
 [ ] people online bar on right side
@@ -35,6 +36,8 @@ Notifications page:
 	inviteId || creator (userId) || recipient (userId) (null if user not member yet) || recipientEmail || gameType || customMessage || timestampSent || timestampOpened || resolved (boolean - has challenge been either accepted or denied) || challengeAccepted (boolean - did recipient accept or deny)
 
 	//when user logs in, check if they invites
+
+	//ermahgerd mode = replace all vowels with 'er'
 
 
 	//chat in game is private with only the two players

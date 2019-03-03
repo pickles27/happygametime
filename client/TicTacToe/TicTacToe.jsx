@@ -1,6 +1,8 @@
 import React from 'react';
 import Board from './Board.jsx';
 import axios from 'axios';
+import ActiveGames from '../ActiveGames.jsx';
+import API from '../api.js';
 
 class TicTacToe extends React.Component {
 	constructor(props) {
@@ -13,6 +15,7 @@ class TicTacToe extends React.Component {
 			xTurn: true,
 			gameId: null,
 			winner: null,
+			begin: null,
 			inviteRecipient: null,
 			inviteMessage: null
 		}
@@ -20,10 +23,16 @@ class TicTacToe extends React.Component {
 		this.startNewGame = this.startNewGame.bind(this);
 		this.sendInvite = this.sendInvite.bind(this);
 		this.onChange = this.onChange.bind(this);
+		this.beginGame = this.beginGame.bind(this);
 	}
 
 	//need to make list of active games open
 	//selected active game
+	componentDidMount() {
+		if (this.props.appState.activeGame !== null) {
+			this.beginGame(this.props.appState.activeGame);
+		}
+	}
 
 	onChange(e) {
 		this.setState({
@@ -33,7 +42,7 @@ class TicTacToe extends React.Component {
 
 	sendInvite(e) {
 		e.preventDefault();
-		axios.post('/invitations', {
+		API.post('/invitations', {
 			recipient: this.state.inviteRecipient,
 			sender: this.props.appState.activeUserId,
 			gameType: 'tictactoe',
@@ -49,10 +58,16 @@ class TicTacToe extends React.Component {
 
 	startNewGame(e) {
 		e.preventDefault();
-		axios.post('/game', {
+		var token = localStorage.getItem('userToken');
+		//need to add player from previous game as player 2
+		API.post('/game', {
 			"type": "tictactoe",
 			"player1": this.props.appState.activeUserId,
 			"player2": "hardcodeplayer2"
+		}, {
+			headers: {
+				Authorization: 'Bearer ' + token
+			}
 		})
 		.then((response) => {
 			this.setState({
@@ -71,12 +86,18 @@ class TicTacToe extends React.Component {
 
 	handleTTTButtonClick(e) {
 		e.preventDefault();
+		var token = localStorage.getItem('userToken');
+		var userId = localStorage.getItem('userId');
 		var index = parseInt(e.target.name);
-		axios.post(`/game/${this.state.gameId}/moves`, {
-			'location': index
+		API.post(`/game/${this.state.gameId}/moves`, {
+			'location': index,
+			'userId': userId
+		}, {
+			headers: {
+				Authorization: 'Bearer ' + token
+			}
 		})
 		.then((response) => {
-			//after sending index to server,
 			this.setState({
 				board: response.data.game.state.board,
 				xTurn: response.data.game.state.xTurn,
@@ -90,11 +111,25 @@ class TicTacToe extends React.Component {
 		});
 	}
 
+	beginGame(game) {
+		//this triggers when activeGame exists in App state
+		//game = this.props.appState.activeGame , {id: 342, game: {}}
+		this.setState({
+			player1: game.game.player1,
+			player2: game.game.player2,
+			board: game.game.state.board,
+			xTurn: game.game.state.xTurn,
+			gameId: game.id,
+			begin: game.game.begin
+		});
+	}
+
 	render(props) {
 		var displayed;
 		if (!this.props.appState.activeUserId) {
 			displayed = <h4>log in to start or join a game :D</h4>;
-		} else if (this.state.gameId === null) {
+		} 
+		if (this.state.gameId === null) {
 			displayed =
 			<div className="gameInvitationComponent">
 				<h3>new game invitation: </h3>

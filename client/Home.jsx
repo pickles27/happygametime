@@ -1,6 +1,8 @@
 import React from 'react';
 import axios from 'axios';
 import moment from 'moment';
+import API from './api.js';
+
 
 class Home extends React.Component {
 	constructor(props) {
@@ -19,8 +21,6 @@ class Home extends React.Component {
 		this.onChange = this.onChange.bind(this);
 		this.formatOpenGamesData = this.formatOpenGamesData.bind(this);
 		this.sortByDate = this.sortByDate.bind(this);
-		this.joinGame = this.joinGame.bind(this);
-
 	}
 
 	componentDidMount() {
@@ -32,7 +32,7 @@ class Home extends React.Component {
 		})
 		.catch(error => {
 			console.log('error from componentDidMount: ', error);
-		});
+		});;
 	}
 
 	showNewOpenGameField() {
@@ -49,7 +49,7 @@ class Home extends React.Component {
 
 	postNewGame() {
 		var token = localStorage.getItem('userToken');
-		return axios.post('/newopengame', {
+		return API.post('/newopengame', {
 				creatorId: this.props.appState.activeUserId,
 				creatorUsername: this.props.appState.activeUsername,
 				gameType: this.state.gameSelection
@@ -62,7 +62,7 @@ class Home extends React.Component {
 	}
 
 	getOpenGames() {
-		return axios.get('/opengames');
+		return API.get('/opengames');
 	}
 
 	newOpenGame(e) {
@@ -99,35 +99,13 @@ class Home extends React.Component {
 		var sortedGames = this.sortByDate(games);
 		return sortedGames.map(game => {
 			return (
-				<div className="openGameInfo">
+				<div key={game.id} className="openGameInfo">
 					<p className="openGameTypeAndFoe">{game.gametype} - created by {game.creatorusername}</p>
 					<p className="openGameTimestamp">{moment(game.timestamp).fromNow()}</p>
-					<button className="joinGameButton" id={game.id} onClick={this.joinGame}>join</button>
+					<button className="joinGameButton" id={game.id} onClick={this.props.joinGame}>join</button>
 				</div>
 			);
 		});
-	}
-
-	joinGame(e) {
-		e.preventDefault();
-		let token = localStorage.getItem('userToken');
-		//allow user to join game if logged in and not the same user that created the open game
-		axios.post('/joingame', {
-			gameId: e.target.id,
-			player2: this.props.appState.activeUserId
-		}, {
-			headers: {
-				Authorization: 'Bearer ' + token
-			}
-		})
-		.then(response => {
-			//new game id
-			console.log('response from joinGame post request: ', response);
-			
-		})
-		.catch(error => {
-			console.log('error from joinGame post request: ', error.response);
-		})
 	}
 
 	render() {

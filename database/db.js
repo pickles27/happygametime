@@ -214,6 +214,12 @@ function startOpenGame(openGameId, player2Id) {
   })
 }
 
+function getUserGames(userId) {
+  let query = "SELECT id, game FROM gameplay WHERE game->>'winner' IS NULL AND (game->>'player1' = $1 OR game->>'player2' = $1)";
+  let values = [userId];
+  return client.query(query, values);
+}
+
 
 //==========================================================================================
 
@@ -229,5 +235,6 @@ module.exports = {
   createOpenGame,
   acceptOpenGame,
   getOpenGames,
-  startOpenGame
+  startOpenGame,
+  getUserGames
 };

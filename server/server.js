@@ -10,6 +10,13 @@ const app = express();
 
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname,'../public')));
+// app.use((req, res, next) => {
+//   res.setHeader('Access-Control-Allow-Origin', '*');
+//   res.setHeader('Access-Control-Allow-Methods', 'GET,POST');
+//   res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,Authorization');
+//   next();
+// });
+
 //--------------- auth ------------------------------------------------------------------
 
 app.post('/createaccount', (req, res) => {
@@ -33,9 +40,7 @@ function translateDbError(dbError) {
 }
 
 app.post('/login', (req, res) => {
-  console.log('req.body: ', req.body);
   db.getUserByUsername(req.body.username).then((userInDb) => {
-    console.log('userInDb: ', userInDb);
     if (userInDb.rows.length === 0) {
       throw new Error("That username does not exist.");
     }
@@ -55,7 +60,6 @@ app.post('/login', (req, res) => {
           if (error) {
             res.status(500).send(error);
           } else {
-            console.log('token created in jwt.sign: ', token);
             res.status(200).send({ 
               token: token,
               username: userInDb.rows[0].username,
@@ -80,8 +84,9 @@ app.get('/opengames', (req, res) => {
   }).catch(error => {
     console.log('error from getOpenGames: ', error);
     res.status(400).send(error);
-  })
-})
+  });
+});
+
 
 //========================= authentication middleware =================================================
 app.all('*', (req, res, next) => {
@@ -108,6 +113,15 @@ app.get('/userinfo', (req, res) => {
   });
 });
 
+app.get('/usersgames', (req, res) => {
+  db.getUserGames(req.query.userId).then(results => {
+    res.status(200).send(results.rows);
+  }).catch(error => {
+    console.log('error from getUserGames: ', error);
+    res.status(400).send(error);
+  });
+});
+
 app.post('/newopengame', (req, res) => {
   var gameInfo = req.body;
   if (gameInfo.gameType !== 'tictactoe') {
@@ -123,7 +137,6 @@ app.post('/newopengame', (req, res) => {
 
 app.post('/joingame', (req, res) => {
   console.log('req.body in /joingame: ', req.body);
-  //call function which takes in the gameid and player2 names
     //fetch opengameinfo using gameid
     //use results of this to create new game and send back results from this function
     db.startOpenGame(req.body.gameId, req.body.player2)
@@ -133,6 +146,7 @@ app.post('/joingame', (req, res) => {
       res.status(200).send(results.rows[0]);
     })
     .catch(error => {
+      console.log('error inside server for joingame request: ', error);
       res.status(400).send(error);
     });
 });
@@ -154,7 +168,14 @@ app.post('/game/:gameId/moves', (req, res) => {
     } else {
       var gameInfo = results.rows[0].game;
       var boardCopy = gameInfo.state.board.slice();
-      if (boardCopy[req.body.location] !== null) {
+      var validTurn = false;
+      if (xTurn && req.body.userId === gameInfo.player1) {
+        validTurn = true;
+      }
+      if (!xTurn && req.body.userId === gameInfo.player2) {
+        validTurn = true;
+      }
+      if (boardCopy[req.body.location] !== null || !validTurn ) {
         //do nothing since spot is taken, send back same board and xTurn with winner still null
         var responseForInvalidMove = {
           "game": {

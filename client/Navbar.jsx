@@ -5,7 +5,7 @@ var Navbar = (props) => {
 	return (
 		<div className="navbar">
 			<button name="home" onClick={props.handleNavButtonClick}>home</button>
-			<button name="invites" onClick={props.handleNavButtonClick}>invites</button>
+			<button name="notifications" onClick={props.handleNavButtonClick}>notifications</button>
 			<button name="tictactoe" onClick={props.handleNavButtonClick}>tic tac toe</button>
 			<button name="checkersButton">checkers</button>
 			<button name="chessButton">chess</button>

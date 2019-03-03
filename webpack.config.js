@@ -2,7 +2,7 @@ const webpack = require('webpack');
 const path = require('path');
 
 module.exports = {
-  mode: 'production',
+  mode: 'development',
   entry: path.join(__dirname, '/client/App.jsx'),
   module: {
     rules: [
@@ -19,4 +19,12 @@ module.exports = {
     path: path.join(__dirname, '/public'),
     filename: 'bundle.js',
   },
+  devServer: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:1337',
+        pathRewrite: {'^/api' : ''}
+      }
+    }
+  }
 }

@@ -1,5 +1,7 @@
 import React from 'react';
 import axios from 'axios';
+import API from '../api.js';
+
 
   
 class CreateAccount extends React.Component {
@@ -25,7 +27,7 @@ class CreateAccount extends React.Component {
 
   onSubmit(e) {
   	e.preventDefault();
-  	axios.post('/createaccount', {
+  	API.post('/createaccount', {
   		username: this.state.username,
   		email: this.state.email,
   		password: this.state.password,

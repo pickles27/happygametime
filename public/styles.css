@@ -126,16 +126,18 @@ button {
 .inviteArea {
 	display: flex;
 	flex-direction: column;
+	align-items: center;
 	width: 100%;
 }
 
 .tttInvitationDiv {
-	width: 100%;
+	width: 50%;
 }
 
 .inviteInput {
 	margin: 2%;
 	line-height: 2.3;
+	width: 100%;
 }
 
 .inputDividerText {
@@ -161,11 +163,18 @@ button {
 }
 
 .customInviteMessageField {
-	width: 100%;
+	width: 80%;
+	margin: 2%;
+	line-height: 2;
 }
 
 .newGameInvitationField {
-	width: 100%;
+	width: 80%;
+	line-height: 2;
+}
+
+.invitesSubmitButton {
+	width: 35%;
 }
 
 /*
@@ -188,6 +197,9 @@ button {
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
+.activeGamesDiv {
+	float: left;
+}
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

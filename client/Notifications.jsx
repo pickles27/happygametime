@@ -1,6 +1,6 @@
 import React from 'react';
 
-class Invites extends React.Component {
+class Notifications extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
@@ -42,10 +42,11 @@ class Invites extends React.Component {
 					<h5 className="inviteOR">OR</h5>
 					<input className="inviteInput" type="email" name="recipientEmail" placeholder="email address" onChange={this.onChange} />
 					<textarea className="inviteInput" rows="4" columns="50" name="customMessage" placeholder="enter a custom message (up to 200 characters): " onChange={this.onChange}></textarea>
+					<button className="invitesSubmitButton">submit</button>
 				</div>
 			</div>
 		);
 	}
 }
 
-export default Invites;
+export default Notifications;
