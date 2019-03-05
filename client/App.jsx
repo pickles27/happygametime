@@ -196,7 +196,7 @@ class App extends React.Component {
 			});
 		})
 		.catch(error => {
-			console.log('error from axios call to usersgames: ', error.response);
+			console.log('error from axios call to usersgames: ', error);
 		});
 	}
 

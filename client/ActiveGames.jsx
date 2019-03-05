@@ -1,4 +1,5 @@
 import React from 'react';
+import moment from 'moment';
 import axios from 'axios';
 import API from './api.js';
 
@@ -14,6 +15,8 @@ class ActiveGames extends React.Component {
 		this.getOpponentIds = this.getOpponentIds.bind(this);
 		this.getOpponentUserData = this.getOpponentUserData.bind(this);
 		this.fillOpponentDataObject = this.fillOpponentDataObject.bind(this);
+		this.formatActiveGamesList = this.formatActiveGamesList.bind(this);
+		this.sort = this.sort.bind(this);
 		// this.filterActiveGamesList = this.filterActiveGamesList.bind(this);
 	}
 
@@ -23,28 +26,10 @@ class ActiveGames extends React.Component {
 		var gameIdsArray = this.props.appState.activeGames.map(game => {
 			return game.id;
 		});
-		gameIdsArray.sort((a, b) => {
-			if (a < b) {
-				return -1;
-			} else if (a > b) {
-				return 1;
-			} else {
-				return 0;
-			}
-		});
 		var prevIdsArray = prevProps.appState.activeGames.map(game => {
 			return game.id;
 		});
-		prevIdsArray.sort((a, b) => {
-			if (a < b) {
-				return -1;
-			} else if (a > b) {
-				return 1;
-			} else {
-				return 0;
-			}
-		});
-		if (JSON.stringify(gameIdsArray) !== JSON.stringify(prevIdsArray)) {
+		if (JSON.stringify(this.sort(gameIdsArray)) !== JSON.stringify(this.sort(prevIdsArray))) {
 			this.getOpponentIds(this.fillOpponentDataObject);
 		}
 		// let formattedList = gamesToDisplay.map((game) => {
@@ -55,18 +40,6 @@ class ActiveGames extends React.Component {
 		// 		opponent = game.game.player1;
 		// 	}
 		// 	this.getOpponentUserData();
-
-
-		//get all opponent user ids before map into a list. then fetch all their user data (make sure search is unique)
-		//creat a map (obj) from their user id to their data
-		//create promises for all their user data
-		//use promise.all
-		//save this right above formatted list
-		// return <div id={game.id}>
-		// 			   <h5>{game.game.type} - vs. {opponent}</h5>
-		// 			   <h6>started: {moment(game.game.begin).fromNow()}</h6>	
-		// 			 </div>
-		// });
 	}
 
 
@@ -78,9 +51,27 @@ class ActiveGames extends React.Component {
 	// 	});
 	// }
 
-	// formatActiveGamesList(activeGames) {
-
-	// }
+	formatActiveGamesList(games) {
+		var userId = localStorage.getItem('userId');
+		return games.map(game => {
+			var opponentId = userId === game.game.player1 ? game.game.player2 : game.game.player1;
+			var opponentData = this.state.opponentData[opponentId];
+			if (!opponentData) {
+				return null;
+			}
+			console.log('opponentId: ', opponentId);
+			console.log('this.state.opponentData: ', this.state.opponentData);
+			var opponentName = opponentData.username;
+			console.log('opponentName: ', opponentName);
+			console.log('game type: ', game.game.type);
+			return (
+				<div>
+					<h5>{game.game.type} - vs. {opponentName}</h5>
+					<h6>started: {moment(game.game.begin).fromNow()}</h6>
+				</div>
+			);
+		}).filter(result => result !== null);
+	}
 
 
 	// chooseTypesToDisplay(e) {
@@ -88,6 +79,18 @@ class ActiveGames extends React.Component {
 	// 		typesToDisplay: e.target.name
 	// 	});
 	// }
+
+	sort(array) {
+		return array.sort((a, b) => {
+			if (a < b) {
+				return -1;
+			} else if (a > b) {
+				return 1;
+			} else {
+				return 0;
+			}
+		});
+	}
 
 	getOpponentIds(callback) {
 		var ids = [];
@@ -124,22 +127,28 @@ class ActiveGames extends React.Component {
 		});
 		axios.all(userDataAxiosRequests)
 		.then((results) => {
-			var opponentData = results.map(result => {
+			var opponentDataArray = results.map(result => {
 				return result.data;
+			});
+			var opponentData = {};
+			opponentDataArray.forEach(object => {
+				opponentData[object.id] = object;
 			});
 			this.setState({
 				opponentData: opponentData
 			});
 		})
 		.catch(error => {
-			console.log('error from fillOpponentDataObject', error.response);
+			console.log('error from fillOpponentDataObject', error);
 		});
 	}
 
 	render() {
+		var games = this.formatActiveGamesList(this.props.appState.activeGames);
 	  return (
 		  <div className="activeGamesDiv">
 		  	<h3>Active Games</h3>
+		  	{games}
 			  <button onClick={this.chooseTypesToDisplay} name="all">all</button>
 			  <button onClick={this.chooseTypesToDisplay} name="tictactoe">tic tac toe</button>
 			  <button onClick={this.chooseTypesToDisplay} name="checkers">checkers</button>
