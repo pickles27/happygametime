@@ -42,3 +42,14 @@ Notifications page:
 
 	//chat in game is private with only the two players
 	//home chat is for anyone who is online and on the home page
+
+	For chat box:
+	socket.io
+	[] make a chat box area for home page
+	[x] set up socket.io connection in server
+	[] create event for connection
+	[] let users post comments
+	[] emit new comments to other users
+	[] let users send and receive privates messages
+	[] make chat box area for private games
+		[] restrict this box to the two players

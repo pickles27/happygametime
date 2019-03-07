@@ -26,5 +26,6 @@ module.exports = {
         pathRewrite: {'^/api' : ''}
       }
     }
-  }
+  },
+  externals: /^socket.io$/i
 }

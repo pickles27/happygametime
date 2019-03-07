@@ -5,17 +5,26 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 require('dotenv').config();
 const db = require('../database/db.js');
-
 const app = express();
+const server = require('http').Server(app);
+const io = require('socket.io')(server);
+
+server.listen(1337);
 
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname,'../public')));
-// app.use((req, res, next) => {
-//   res.setHeader('Access-Control-Allow-Origin', '*');
-//   res.setHeader('Access-Control-Allow-Methods', 'GET,POST');
-//   res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,Authorization');
-//   next();
-// });
+
+//--------------- socket.io ------------------------------------------------------------- 
+
+io.on('connection', (socket) => {
+  console.log('connected, yayyyy. client: ', client);
+  socket.broadcast.emit('so and so connected');
+  io.emit('this', { will: 'be seen by everyone' });
+
+  socket.on('disconnect', () => {
+    io.emit('so and so disconnected');
+  })
+});
 
 //--------------- auth ------------------------------------------------------------------
 
@@ -236,7 +245,7 @@ app.post('/invitebyemail', (req, res) => {
   //if user doesn't have an account yet, response with message: 'There isn't an account associated with this email yet. Send invitiation?
 });
 
-const PORT = 1337;
-app.listen(PORT, () => {
-  console.log(`Listening on port ${PORT}........o.o`);
-});
+// const PORT = 1337;
+// app.listen(PORT, () => {
+//   console.log(`Listening on port ${PORT}........o.o`);
+// });

@@ -128,7 +128,7 @@ class Home extends React.Component {
 												  <button onClick={this.newOpenGame} name="newgamesubmit">create game</button>
 												</div>;
 		} else {
-			newOpenGameView = <div>
+			newOpenGameView = <div className="newOpenGameViewDiv">
 													<button onClick={this.showNewOpenGameField}>create open game</button>
 												</div>;
 		}

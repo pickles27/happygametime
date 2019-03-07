@@ -8,7 +8,7 @@ import TicTacToe from './TicTacToe/TicTacToe.jsx';
 import CreateAccount from './Auth/CreateAccount.jsx';
 import Login from './Auth/Login.jsx';
 import UserInfo from './Auth/UserInfo.jsx';
-//import Chatbox from './Chatbox/Chatbox.jsx';
+import ChatBox from './ChatBox/ChatBox.jsx';
 import ActiveGames from './ActiveGames.jsx';
 import API from './api.js';
 
@@ -273,14 +273,12 @@ class App extends React.Component {
 				<div>
 					{activeGameSection}
 				</div>
+				<div className="chatbox">
+					<ChatBox />
+				</div>
 			</div>
 		);
 	}
 }
-/*
-				<div className="chatbox">
-					<Chatbox />
-				</div>
-*/
 
 ReactDOM.render(<App />, document.getElementById("app"));

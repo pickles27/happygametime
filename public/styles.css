@@ -3,13 +3,13 @@ body {
 	background-size: cover;
 	background-attachment: fixed;
 	font-family: 'Play', sans-serif;
-	opacity: .8;
 }
 
 button {
 	font-family: 'Play', sans-serif;
 	padding: 4px 10px 4px 10px;
 	margin: 0px 6px 0px 6px;
+	opacity: .9;
 }
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Styles For Navbar ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -25,23 +25,25 @@ button {
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-.loginAndHome {
+/*.loginAndHome {
 	display: block;
 	width: 100%;
 	position: absolute;
-}
+}*/
 
 .loginArea {
 	display: flex;
 	flex-direction: column;
 	border: solid lightgrey 2px;
 	line-height: .3;
-	padding: 1% 2% 1% 2%;
-	width: 15%;
-	background: white;
+	padding: 1em 0em 2em 0em;
+	width: 30%;
+	height: 20%;
+	background: #F8F8F8;
 	position: fixed;
-	top: 6%;
-	right: 6%;
+	right: 0;
+	margin: 1em;
+	opacity: .9;
 }
 
 .login {
@@ -62,6 +64,7 @@ button {
 	text-align: center;
 	display: inline-block;
 	width: 100%;
+	position: relative;
 }
 
 .homeSection {
@@ -77,20 +80,20 @@ button {
 
 .openGameInfo {
 	display: inline-block;
-	background: white;
+	background: #F8F8F8;
 	border: solid lightgrey 2px;
 	width: 50%;
 	margin: 0 0 8px 8px;
 	line-height: .15;
+	opacity: .9;
 }
 
 .joinGameButton {
 	margin-bottom: 8px;
 }
 
-.newOpenGameDiv {
-	/*height:80%; width:100%;
-	overflow:hidden; overflow-y:scroll;*/
+.newOpenGameViewDiv {
+	height:80%; 
 }
 
 .happyGameTimeTitle {
@@ -102,13 +105,6 @@ button {
 	flex-direction: column;
 	align-items: center;
 	width: 100%;
-}
-
-.chatbox {
-/*	display: block;
-*/	width: 100%;
-/*	bottom: 0;
-	position: absolute*/
 }
 
 /*
@@ -191,14 +187,55 @@ button {
 /*
 ~~~~~~ Styles For Chatbox ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-.chatboxMainDiv {
+
+.chatbox {
+	position: fixed;
+	width: 30%;
+	background: #F8F8F8;
+	border: solid lightgrey 2px;
+	height: 60%;
+	right: 0px;
+	bottom: 0px;
+	margin: 1em;
+	opacity: .9;
 }
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 .activeGamesDiv {
+	overflow: scroll;
 	float: left;
+	height: 90%;
+	position: fixed;
+	width: 15%;
+	border: solid lightgrey .2em;
+	background: #F8F8F8;
+	opacity: .9;
+	margin: 1em;
+}
+
+.activeGameDiv {
+	border: solid lightgrey .1em;
+	background: white;
+	line-height: .15;
+	margin: .15em;
+	z-index: 1;
+}
+
+.activeGamesList {
+	overflow: scroll;
+  height: 100%;
+  float: center;
+}
+
+.activeGamesTitle {
+  float: top;
+}
+
+.activeGamesButtons {
+	padding-top: 2em;
+	float: bottom;
 }
 
 /*

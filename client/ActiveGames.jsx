@@ -59,13 +59,9 @@ class ActiveGames extends React.Component {
 			if (!opponentData) {
 				return null;
 			}
-			console.log('opponentId: ', opponentId);
-			console.log('this.state.opponentData: ', this.state.opponentData);
 			var opponentName = opponentData.username;
-			console.log('opponentName: ', opponentName);
-			console.log('game type: ', game.game.type);
 			return (
-				<div>
+				<div className="activeGameDiv" key={game.id}>
 					<h5>{game.game.type} - vs. {opponentName}</h5>
 					<h6>started: {moment(game.game.begin).fromNow()}</h6>
 				</div>
@@ -147,15 +143,21 @@ class ActiveGames extends React.Component {
 		var games = this.formatActiveGamesList(this.props.appState.activeGames);
 	  return (
 		  <div className="activeGamesDiv">
-		  	<h3>Active Games</h3>
-		  	{games}
-			  <button onClick={this.chooseTypesToDisplay} name="all">all</button>
-			  <button onClick={this.chooseTypesToDisplay} name="tictactoe">tic tac toe</button>
-			  <button onClick={this.chooseTypesToDisplay} name="checkers">checkers</button>
+		  	<h3 className="activeGamesTitle">Active Games</h3>
+		  	<div className="activeGamesList">
+		  	  {games}
+		  	</div>
 		  </div>
 	  );
 	}
 		
 }
+/*
+<div className="activeGamesButtons">
+		 		</div>
+				  <button onClick={this.chooseTypesToDisplay} name="all">all</button>
+				  <button onClick={this.chooseTypesToDisplay} name="tictactoe">tic tac toe</button>
+				  <button onClick={this.chooseTypesToDisplay} name="checkers">checkers</button>
 
+*/
 export default ActiveGames;
