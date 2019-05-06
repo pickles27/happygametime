@@ -17,14 +17,26 @@ app.use(express.static(path.join(__dirname,'../public')));
 //--------------- socket.io ------------------------------------------------------------- 
 
 io.on('connection', (socket) => {
-  console.log('connected, yayyyy. client: ', client);
-  socket.broadcast.emit('so and so connected');
-  io.emit('this', { will: 'be seen by everyone' });
+  console.log('wooooo, a user connected');
+  //socket.broadcast.emit('so and so connected');
+  //socket.emit('this', { will: 'be seen by everyone' });
+  socket.on('chat message', function(message) {
+    console.log('message: ', message);
+    socket.emit('chat message', message);
+  });
+
+  socket.on('tttclick', function(data) {
+    console.log('tttclick data: ', data);
+    //need to change this so it only emits to opponent!!!!
+    socket.emit('tttclick', data);
+  })
 
   socket.on('disconnect', () => {
     io.emit('so and so disconnected');
-  })
+  });
 });
+
+
 
 //--------------- auth ------------------------------------------------------------------
 
@@ -148,13 +160,14 @@ app.post('/joingame', (req, res) => {
   console.log('req.body in /joingame: ', req.body);
     //fetch opengameinfo using gameid
     //use results of this to create new game and send back results from this function
-    db.startOpenGame(req.body.gameId, req.body.player2)
-    .then(results => {
+    db.startOpenGame(req.body.gameId, req.body.player2).then(results => {
       //returning id, game
-      console.log('results.rows from startOpenGame in server.js: ', results.rows);
-      res.status(200).send(results.rows[0]);
-    })
-    .catch(error => {
+      console.log('results.rows from startOpenGame in server.js: ', results.rows[0]);
+      //newNotif(user receiving the notif, type of notif, user sending notif, gameId)
+      return db.newNotification(results.rows[0].game.player1, 'userJoinedGame', req.body.player2, req.body.gameId).then(() => {
+        res.status(200).send(results.rows[0]); 
+      });
+    }).catch(error => {
       console.log('error inside server for joingame request: ', error);
       res.status(400).send(error);
     });
@@ -178,10 +191,10 @@ app.post('/game/:gameId/moves', (req, res) => {
       var gameInfo = results.rows[0].game;
       var boardCopy = gameInfo.state.board.slice();
       var validTurn = false;
-      if (xTurn && req.body.userId === gameInfo.player1) {
+      if (gameInfo.state.xTurn && req.body.userId === gameInfo.player1) {
         validTurn = true;
       }
-      if (!xTurn && req.body.userId === gameInfo.player2) {
+      if (!gameInfo.state.xTurn && req.body.userId === gameInfo.player2) {
         validTurn = true;
       }
       if (boardCopy[req.body.location] !== null || !validTurn ) {
@@ -245,6 +258,51 @@ app.post('/invitebyemail', (req, res) => {
   //if user doesn't have an account yet, response with message: 'There isn't an account associated with this email yet. Send invitiation?
 });
 
+// notifications //////////
+app.post('/postnotification', (req, res) => {
+  //get these params from the req object
+  var userId = req.body.userId;
+  var type = req.body.type;
+  var sender = req.body.sender;
+  var gameId = req.body.gameId;
+  db.newNotification(userId, type, sender, gameId).then(results => {
+    console.log('results in postnotification: ', results);
+    res.status(200).send('notification added'); //<--- change this!!!
+  }).catch(error => {
+    res.status(500).send('error in postnotification response: ', error);
+  });
+});
+/*
+  This request ^ requires a body:
+  {
+    userId: x,
+    type: x,
+    sender: x,
+    gameId: x
+  }
+*/
+
+app.put('/notificationsseen', (req, res) => {
+  //get userId from req object
+  var userId = req.body.userId;
+  db.markNotificationsSeen(userId).then(results => {
+    console.log('results in notificationsseen: ', results);
+    res.status(200).send('yo notificationz waz seent'); //<-- change this!!
+  }).catch(error => {
+    res.status(500).send('error in notificationsseen: ', error);
+  });
+});
+
+app.get('/notifications', (req, res) => {
+  var userId = req.query.userId;
+  db.getNotifications(userId).then(results => {
+    res.status(200).send(results);
+  }).catch(error => {
+    res.status(500).send('error in get notifications call: ', error);
+  });
+});
+
+// used this before adding webpack dev server
 // const PORT = 1337;
 // app.listen(PORT, () => {
 //   console.log(`Listening on port ${PORT}........o.o`);

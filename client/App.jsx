@@ -11,6 +11,7 @@ import UserInfo from './Auth/UserInfo.jsx';
 import ChatBox from './ChatBox/ChatBox.jsx';
 import ActiveGames from './ActiveGames.jsx';
 import API from './api.js';
+import io from 'socket.io-client';
 
 class App extends React.Component {
 	constructor() {
@@ -41,6 +42,7 @@ class App extends React.Component {
 		// this.launchGame = this.launchGame.bind(this);
 		this.joinGame = this.joinGame.bind(this);
 		this.getActiveGames = this.getActiveGames.bind(this);
+		this.socket = io('http://localhost:1337');
 
 	}
 
@@ -203,21 +205,18 @@ class App extends React.Component {
 	joinGame(e) {
 		e.preventDefault();
 		let token = localStorage.getItem('userToken');
+		let userId = localStorage.getItem('userId');
 		//allow user to join game if logged in and not the same user that created the open game
 		API.post('/joingame', {
 			gameId: e.target.id,
-			player2: this.state.activeUserId
+			player2: userId
 		}, {
 			headers: {
 				Authorization: 'Bearer ' + token
 			}
-		})
-		.then(response => {
+		}).then(response => {
 			//new game id
-			console.log('response from joinGame post request: ', response.data);
 			var newGame = response.data;
-			console.log('newGame.game.type for setState: ', newGame.game.type);
-
 			var activeGamesUpdated = this.state.activeGames.slice().concat(newGame);
 			this.setState({
 				activeGames: activeGamesUpdated,
@@ -225,8 +224,7 @@ class App extends React.Component {
 				activeGame: newGame,
 				page: newGame.game.type
 			});
-		})
-		.catch(error => {
+		}).catch(error => {
 			console.log('error from joinGame post request: ', error);
 		});
 	}
@@ -239,9 +237,10 @@ class App extends React.Component {
 		var isLoggedIn = localStorage.getItem('userToken') ? true : false;
 		var activeGameSection = null;
 		var activeGameSection = isLoggedIn ? <ActiveGames appState={this.state} /> : null;
+		var chat = isLoggedIn ? <ChatBox socket={this.socket} activeUsername={this.state.activeUsername}/> : null;
 
 		if (selectedPage === 'tictactoe') {
-			displayed = <TicTacToe appState={this.state} returnHome={this.returnHome}/>;
+			displayed = <TicTacToe socket={this.socket} appState={this.state} returnHome={this.returnHome}/>;
 		} else if (selectedPage === 'createAccount') {
 			displayed = <CreateAccount loginNewAccount={this.loginNewAccount} returnHome={this.returnHome}/>
 		} else if (selectedPage === 'notifications') {
@@ -260,22 +259,16 @@ class App extends React.Component {
 		return (
 			<div className="page">
 				<div className="loginAndHome">
-					<div className="loginArea">
-						{userSection}
-					</div>
-					<div className="homeSection">
-						<Navbar handleNavButtonClick={this.handleNavButtonClick}/>
-						<div className="displayed">
-							{displayed}
-						</div>
+					{userSection}
+					<Navbar handleNavButtonClick={this.handleNavButtonClick}/>
+					<div className="displayed">
+						{displayed}
 					</div>
 				</div>
 				<div>
 					{activeGameSection}
 				</div>
-				<div className="chatbox">
-					<ChatBox />
-				</div>
+				{chat}
 			</div>
 		);
 	}

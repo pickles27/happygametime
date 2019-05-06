@@ -16,8 +16,8 @@ class TicTacToe extends React.Component {
 			gameId: null,
 			winner: null,
 			begin: null,
-			inviteRecipient: null,
-			inviteMessage: null
+			inviteRecipient: '',
+			inviteMessage: ''
 		}
 		this.handleTTTButtonClick = this.handleTTTButtonClick.bind(this);
 		this.startNewGame = this.startNewGame.bind(this);
@@ -30,8 +30,16 @@ class TicTacToe extends React.Component {
 	//selected active game
 	componentDidMount() {
 		if (this.props.appState.activeGame !== null) {
-			this.beginGame(this.props.appState.activeGame);
+			this.beginGame(this.props.appState.activeGame); //IS THIS CORRECT????
 		}
+		this.props.socket.on('tttclick', (data) => {
+			//index and xturn
+			var updatedBoard = this.state.board;
+			updatedBoard[data.index] = data.xTurn ? 'X' : 'O';
+			this.setState({
+				board: updatedBoard
+			});
+		})
 	}
 
 	onChange(e) {
@@ -105,6 +113,15 @@ class TicTacToe extends React.Component {
 			});
 			//check if response says 'winner' is true
 			//if so, deal with game win (already done in render)
+			//CHANGE GAME SO THAT BOARD DOESN'T DISAPPEAR WHEN SOMEONE WINS
+		})
+		.then(() => {
+			//emit button click
+			//xTurn is toggled because returns from server already switched
+			this.props.socket.emit('tttclick', {index: index, xTurn: !this.state.xTurn});
+			//game is allowing me to move around. shouldn't let me click again after i make a valid move
+			//check and see if it's actually changing the board or not,, NO IT ISN'T CHANGING THE BOARD
+			//figure this shit out
 		})
 		.catch((error) => {
 			console.log('error from tttbuttonclick axios call on client side: ', error);

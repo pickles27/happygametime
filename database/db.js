@@ -172,7 +172,7 @@ function getUserById(id) {
   return client.query(query, values);
 }
 
-//=========================== invitations ==================================================
+//=========================== invitations/notifications ==================================================
 /*
 CREATE TABLE invitations (inviteId SERIAL NOT NULL PRIMARY KEY, creatorId int, 
 recipientId int, recipientEmail varchar(100), gameType varchar(100), 
@@ -220,6 +220,35 @@ function getUserGames(userId) {
   return client.query(query, values);
 }
 
+function newNotification(userId, type, sender, gameId) {
+  //seen will be false initially
+  let query = "INSERT INTO notifications (userId, type, seen, sender, timeCreated, gameId) VALUES ($1, $2, $3, $4, now(), $5) RETURNING notificationId";
+  let values = [userId, type, false, sender, gameId];
+  return client.query(query, values);
+}
+
+function markNotificationsSeen(userId) {
+  let query = "UPDATE notifications SET seen = true WHERE userId = $1 RETURNING notificationId";
+  let values = [userId];
+  return client.query(query, values);
+}
+
+function getNotifications(userId) {
+  let query = "SELECT * FROM notifications WHERE userId = $1";
+  let values = [userId];
+  return client.query(query, values);
+}
+
+/*
+CREATE TABLE notifications(
+notificationId serial PRIMARY KEY,
+userId integer NOT NULL,
+type VARCHAR(200) NOT NULL,
+seen BOOLEAN,
+sender integer NOT NULL,
+timeCreated timestamp,
+gameId integer NOT NULL);
+*/
 
 //==========================================================================================
 
@@ -236,5 +265,8 @@ module.exports = {
   acceptOpenGame,
   getOpenGames,
   startOpenGame,
-  getUserGames
+  getUserGames,
+  newNotification,
+  markNotificationsSeen,
+  getNotifications
 };

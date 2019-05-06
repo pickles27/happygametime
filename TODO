@@ -53,3 +53,34 @@ Notifications page:
 	[] let users send and receive privates messages
 	[] make chat box area for private games
 		[] restrict this box to the two players
+
+INVITATIONS:
+-need to do this for game to work
+-when someone clicks JOIN on an open game, *****
+	send a notification to the player who started that game
+	red dot in notifications button
+	say: "PLAYER-X joined your *gametype* game. Play now"
+	-when you click this, it goes to the game screen
+
+notifications db table:
+notifications:
+rows:
+-auto incrementing serial ID
+-userId (this person's notifications)
+-type (type of notification: userJoinedYourOpenGame, gameInvite, ...)
+-seen: true/false
+-sender (userId) - person who joined the open game, or sent game invite
+-time created - time of the notification
+-gameId - id of the game to be played
+
+CREATE TABLE notifications(
+notificationId serial PRIMARY KEY,
+userId integer NOT NULL,
+type VARCHAR(200) NOT NULL,
+seen BOOLEAN,
+sender integer NOT NULL,
+timeCreated timestamp,
+gameId integer NOT NULL);
+
+-now need to add in db function to write to this table whenever a user clicks JOIN on an open game, and also when a user invites a user to a game
+-also need an api endpoint to put into componentDidMount to fetch this data when the notifications tab renders

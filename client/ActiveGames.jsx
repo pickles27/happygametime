@@ -143,7 +143,7 @@ class ActiveGames extends React.Component {
 		var games = this.formatActiveGamesList(this.props.appState.activeGames);
 	  return (
 		  <div className="activeGamesDiv">
-		  	<h3 className="activeGamesTitle">Active Games</h3>
+		  	<h3 className="activeGamesTitle">your active games</h3>
 		  	<div className="activeGamesList">
 		  	  {games}
 		  	</div>

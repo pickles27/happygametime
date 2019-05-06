@@ -8,11 +8,11 @@ var UserInfo = (props) => {
 	}
 	return (
 		<div className="userInfoBox">
-			<h3>{props.username}</h3>
-			<h6>member since {moment(props.created).format("MMM Do YYYY")}!</h6>
+			<h3 className="userInfoHeader">{props.username}</h3>
+			<h6 className="memberSince">member since {moment(props.created).format("MMM Do YYYY")}!</h6>
 			{userBio}
-			<button className="editBioButton">Edit bio</button>
-			<button className="logOutButton" onClick={props.logOut}>Log out</button>
+			<button className="userInfoButtons">Edit bio</button>
+			<button className="userInfoButtons" onClick={props.logOut}>Log out</button>
 		</div>
 	);
 }
