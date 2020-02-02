@@ -1,5 +1,6 @@
 STUFF TO DO:
 
+[x] ERROR HANDLING - if database is not created yet need error for this
 [x] make logout button remove token too
 [x] make tic tac toe game use userId to set game state and create new database game rows
 [x] make login peristant?? to refresh until logged out? or not until done editing game

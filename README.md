@@ -17,3 +17,7 @@ tic tac toe:
 -if 'yes' button is clicked, 
 	FOR NOW: just start a new game with both players being same person, call this person "dummyX and dummyO"
 	LATER: wait for 2nd player. add game to home page and 'open games' tab. let player 2 join.
+
+
+HOWTO: set up app.
+- create database
